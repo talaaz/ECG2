@@ -1,0 +1,24 @@
+dp PC(out pc_out : ns(5)){
+
+    reg c: ns(32);
+
+	always {
+		$display($dec, "Cycle: ", $cycle);
+		$display($dec, "pc_out: ", pc_out);
+		c=c+1;
+		pc_out=c;
+
+		}
+}
+
+
+dp testPC(in pc_out:ns(5)) {
+	always{$display($dec, "Cycle:", $cycle, ", pc_out=", pc_out);}
+}
+
+
+system PCsystem{
+	PC(pc_out);
+	testPC(pc_out);
+}
+

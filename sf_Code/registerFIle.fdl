@@ -1,0 +1,74 @@
+
+
+dp registerFile(in asel, bsel,storesel : ns(3) ; 
+				in storeenable : ns(1);
+				in storedata: tc(32); 
+				out a: tc(32); out b : tc(32)){
+    			reg r0, r1,r2,r3,r4,r5,r6,r7 : ns(32);
+    			always{ 
+
+    			a= (asel==0) ? r0 :
+    				 (asel==1) ? r1 : 
+    				 (asel==2) ? r2 :
+    				 (asel==3) ? r3 :
+    				 (asel==4) ? r4 :
+    				 (asel==5) ? r5 : 
+    				 (asel==6) ? r6 : r7
+    			;
+				b=	 bsel==0 ? r0 :
+    				(bsel==1 ? r1 : 
+    				(bsel==2 ? r2 :
+    				(bsel==3 ? r3 :
+    				(bsel==4 ? r4 :
+    				(bsel==5 ? r5 : 
+    				(bsel==6 ? r6 : r7
+    			))))));
+
+
+
+    			r1= storeenable==1 ? (storesel==1 ? storedata : r1 )  : r1;
+    			r2= storeenable==1 ? (storesel==2 ? storedata : r2 )  : r2;
+    			r3= storeenable==1 ? (storesel==3 ? storedata : r3 )  : r3;
+    			r4= storeenable==1 ? (storesel==4 ? storedata : r4 )  : r4;
+    			r5= storeenable==1 ? (storesel==5 ? storedata : r5 )  : r5;
+    			r6= storeenable==1 ? (storesel==6 ? storedata : r6 )  : r6;
+    			r7= storeenable==1 ? (storesel==7 ? storedata : r7 )  : r7;
+
+				$display( ", r1= ", r1,", r2= ", r2,", r3= ", r3,",r4= ", r4,", r5= ", r5,",r6= ", r6,", r7= ", r7);
+
+
+    			}
+}
+
+dp testregisterFile(
+ out asel, bsel,storesel : ns(3) ; 
+ out storeenable : ns(1);
+ out storedata: tc(32); 
+ in a: tc(32); in b : tc(32))
+  {
+always{$display($dec, "Cycle:", $cycle, ", asel=", asel , ", bsel=", bsel ,
+", storesel=", storesel , ", storeenable=", storeenable, ", storedata=", storedata, ", a= ", a, ", b = ", b
+);}
+sfg test_0 { asel = 1; bsel = 2 ;storesel= 3; storeenable = 0; storedata = 5 ;}
+sfg test_1 { asel = 3; bsel = 2 ;storesel= 2; storeenable = 1; storedata = 4 ;}
+sfg test_2 { asel = 2; bsel = 1 ;storesel= 1; storeenable = 0; storedata = 6 ;}
+sfg test_3 { asel = 3; bsel = 3 ;storesel= 3; storeenable = 1; storedata = 3 ;}
+
+}
+// state machine to control testbench
+fsm f_testbench(testregisterFile){
+initial s0; // begin with state s0
+state s1, s2,s3; // other states are: s1, s2
+@s0 (test_0) -> s1; // run test_0 and go to s1
+@s1 (test_1) -> s2; // run test_1 and go to s2
+@s2 (test_2) -> s3; // run test_2 and go to s0
+@s3 (test_3) -> s0; // run test_2 and go to s0
+}
+
+system myFirstSystem {
+registerFile( asel, bsel,storesel,  storeenable ,storedata,a, b );
+testregisterFile(asel, bsel,storesel,  storeenable ,storedata,a, b );
+}
+
+
+
